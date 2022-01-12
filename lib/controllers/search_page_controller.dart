@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gst/models/gst_model.dart';
+import 'package:gst/services/api_exceptions.dart';
 import 'package:gst/services/api_provider.dart';
 
 class SearchPageController extends GetxController {
@@ -29,13 +30,14 @@ class SearchPageController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
       );
       int searchId = int.parse(searchController.text.removeAllWhitespace);
-      final GstModel user = await _apiProvider.getGstUser(searchId);
+      final data = await _apiProvider.getReq('get_users/$searchId');
+      final user = GstModel.fromJson(data);
       Get.closeAllSnackbars();
       Get.toNamed('/', arguments: user);
-    } catch (e) {
+    } on ApiException catch (e) {
       Get.snackbar(
         'Error',
-        'User not found',
+        e.message,
         icon: const Icon(
           CupertinoIcons.search,
           color: Colors.white,
